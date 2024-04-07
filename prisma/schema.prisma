@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id  Int @id @default(autoincrement())
+  email String @unique
+  username String @unique
+  password String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role Role @default(USER)  
+  enrollments Enrollment[]
+  enrollmentRequests EnrollmentRequest[]
+}
+
+
+
+model Schedule {
+  id Int @id @default(autoincrement())
+  dayOfWeek DayOfWeek
+  shift Shift
+}
+
+model Tema {
+ id                 Int      @id @default(autoincrement())
+ name               String
+ description String
+ educationalResources String?
+ subjectId          Int
+ subject            subjects @relation(fields: [subjectId], references: [id])
+}
+
+
+model subjects{
+  id Int @id @unique @default(autoincrement())
+  nombre String @unique
+  boss String
+  description String
+  imageUrl    String? 
+  temas Tema[]
+  enrollments Enrollment[]
+  enrollmentRequests EnrollmentRequest[]
+}
+
+model Enrollment {
+ id          Int      @id @default(autoincrement())
+ userId      Int
+ user        User     @relation(fields: [userId], references: [id])
+ subjectId   Int
+ subject     subjects @relation(fields: [subjectId], references: [id])
+}
+
+model EnrollmentRequest {
+ id          Int      @id @default(autoincrement())
+ userId      Int
+ user        User     @relation(fields: [userId], references: [id])
+ subjectId   Int
+ subject     subjects @relation(fields: [subjectId], references: [id])
+ status      EnrollmentRequestStatus @default(PENDING)
+}
+
+
+
+
+enum DayOfWeek {
+  Lunes
+  Martes
+  Miercoles
+  Jueves
+  Viernes
+}
+
+enum Shift {
+  Primero
+  Segundo
+  Tercero
+  Cuarto
+  Quinto
+  Sexto
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum EnrollmentRequestStatus {
+ PENDING
+ ACCEPTED
+ REJECTED
+}
+
+
